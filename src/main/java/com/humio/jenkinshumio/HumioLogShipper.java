@@ -1,5 +1,6 @@
 package com.humio.jenkinshumio;
 
+import com.google.common.collect.Lists;
 import hudson.Plugin;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -44,6 +45,11 @@ public class HumioLogShipper {
 
         List<Event> events = new ArrayList<>(queue.size());
         queue.drainTo(events);
+
+        // We want events in the order they were added, this is for
+        // events that share the same timestamp so they appear in the
+        // right order in Humio.
+        events = Lists.reverse(events);
 
         JSONObject json = new JSONObject();
         json.put("events", events.parallelStream().map(HumioLogShipper::toEventJson).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
