@@ -1,7 +1,5 @@
 # Humio Plugin for Jenkins
 
-**This project is WIP, use at your own peril!**
-
 This plugin will automatically ship all build logs to Humio.
 
 ## Usage
