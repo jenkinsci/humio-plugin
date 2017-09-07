@@ -12,7 +12,7 @@ import java.io.*;
 public class HumioJobListener extends ConsoleLogFilter {
     @Override
     public OutputStream decorateLogger(Run build, OutputStream logger) throws IOException, InterruptedException {
-        if (HumioConfig.getInstance().enabled) {
+        if (HumioConfig.getInstance().getEnabled()) {
             return new TeeOutputStream(logger, new HumioOutputStream(build.getParent().getName(), build.getNumber()));
         } else {
             return logger;

@@ -12,4 +12,11 @@ The auth token kan be found in Humio under your account information.
 
 ## Installation
 
-TODO
+Build the HPI package using:
+
+```shell
+mvn package
+```
+
+Upload the `hpi` file from the target directory to Jenkins,
+under `Plugins` > `Advanced`.

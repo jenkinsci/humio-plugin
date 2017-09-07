@@ -69,8 +69,8 @@ public class HumioLogShipper {
                 return;
             }
 
-            PostMethod post = new PostMethod(config.serverURL + ingestURL(config.dataspaceId));
-            post.setRequestHeader("Authorization", "Bearer " + config.authToken);
+            PostMethod post = new PostMethod(config.getServerURL() + ingestURL(config.getDataspaceId()));
+            post.setRequestHeader("Authorization", "Bearer " + config.getAuthToken());
             post.setRequestEntity(new StringRequestEntity(requestData.toString(),  "application/json", "utf-8"));
             int statusCode = httpClient.executeMethod(post);
 
@@ -78,7 +78,7 @@ public class HumioLogShipper {
                 LOGGER.error("Failed to send logs to Humio. Got bad response code. code={} response={}", statusCode, post.getResponseBodyAsString());
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to send logs to Humio. serverURL={}", HumioConfig.getInstance().serverURL, e);
+            LOGGER.error("Failed to send logs to Humio. serverURL={}", HumioConfig.getInstance().getServerURL(), e);
         }
     }
 
