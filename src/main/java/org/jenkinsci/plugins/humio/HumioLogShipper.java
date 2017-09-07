@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,7 @@ public class HumioLogShipper {
                 return;
             }
 
-            PostMethod post = new PostMethod(config.getServerURL() + ingestURL(config.getDataspaceId()));
+            PostMethod post = new PostMethod(ingestURL(config.getDataspaceId()));
             post.setRequestHeader("Authorization", "Bearer " + config.getAuthToken());
             post.setRequestEntity(new StringRequestEntity(requestData.toString(),  "application/json", "utf-8"));
             int statusCode = httpClient.executeMethod(post);
@@ -74,14 +76,20 @@ public class HumioLogShipper {
             if (statusCode >= 400) {
                 LOGGER.error("Failed to send logs to Humio. Got bad response code. code={} response={}", statusCode, post.getResponseBodyAsString());
             }
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             LOGGER.error("Failed to send logs to Humio. serverURL={}", HumioConfig.getInstance().getServerURL(), e);
         }
     }
 
 
-    private static String ingestURL(String dataspaceId) {
-        return "/api/v1/dataspaces/" + dataspaceId + "/ingest";
+    private static String ingestURL(String dataspaceId) throws URISyntaxException {
+        HumioConfig config = HumioConfig.getInstance();
+
+        // Remove any double '/' and so on, since the user may have included them in the serverURL.
+        URI uri = new URI(config.getServerURL() + "/api/v1/dataspaces/" + dataspaceId + "/ingest");
+        uri = uri.normalize();
+
+        return uri.toString();
     }
 
     private static JSONObject toEventJson(Event event) {
