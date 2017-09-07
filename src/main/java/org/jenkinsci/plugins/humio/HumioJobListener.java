@@ -1,4 +1,4 @@
-package com.humio.jenkinshumio;
+package org.jenkinsci.plugins.humio;
 
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;

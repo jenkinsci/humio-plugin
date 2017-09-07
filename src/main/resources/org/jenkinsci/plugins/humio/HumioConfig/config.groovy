@@ -1,4 +1,4 @@
-package com.humio.jenkinshumio.HumioConfig
+package org.jenkinsci.plugins.humio.HumioConfig
 
 import lib.FormTagLib
 

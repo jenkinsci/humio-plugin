@@ -1,4 +1,4 @@
-package com.humio.jenkinshumio;
+package org.jenkinsci.plugins.humio;
 
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsScope;
