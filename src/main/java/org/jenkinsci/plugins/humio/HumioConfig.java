@@ -19,7 +19,7 @@ import java.util.List;
 @Extension
 public class HumioConfig extends GlobalConfiguration {
 
-    private static final String HUMIO_CREDENTIAL_KEY = "HumioPluginAuthToken";
+    private static final String HUMIO_CREDENTIAL_KEY = "HumioPluginIngestToken";
     private static final Logger LOGGER = LoggerFactory.getLogger(HumioConfig.class);
 
     private String serverURL = "https://cloud.humio.com/";
@@ -47,8 +47,8 @@ public class HumioConfig extends GlobalConfiguration {
         HumioConfig i = getInstance();
         return !(  "".equals(i.serverURL)
                 || i.serverURL == null
-                || "".equals(i.getAuthToken())
-                || i.getAuthToken() == null
+                || "".equals(i.getIngestToken())
+                || i.getIngestToken() == null
                 || "".equals(i.dataspaceId)
                 || i.dataspaceId == null);
     }
@@ -71,7 +71,7 @@ public class HumioConfig extends GlobalConfiguration {
     }
 
     @SuppressWarnings("all")
-    public String getAuthToken() {
+    public String getIngestToken() {
         // TODO: There must be a more elegant way of getting credentials?
 
         List<Credentials> credentialsList =
@@ -82,6 +82,7 @@ public class HumioConfig extends GlobalConfiguration {
         for (Credentials c : credentialsList) {
             if (c instanceof StandardUsernamePasswordCredentials) {
                 StandardUsernamePasswordCredentials cc = (StandardUsernamePasswordCredentials)c;
+
                 if (HUMIO_CREDENTIAL_KEY.equals(cc.getId())) {
                     return cc.getPassword().getPlainText();
                 }
@@ -92,11 +93,11 @@ public class HumioConfig extends GlobalConfiguration {
     }
 
     @SuppressWarnings("unused")
-    public void setAuthToken(String authToken) {
+    public void setIngestToken(String ingestToken) {
         try {
-            updateAuthToken(authToken);
+            updateIngestToken(ingestToken);
         } catch (IOException e) {
-            LOGGER.error("Failed to update Humio Auth Token", e);
+            LOGGER.error("Failed to update Humio Intest Token", e);
         }
     }
 
@@ -120,17 +121,28 @@ public class HumioConfig extends GlobalConfiguration {
         this.enabled = enabled;
     }
 
-    private void updateAuthToken(String authToken) throws IOException {
-        SystemCredentialsProvider
-                .getInstance()
-                .getCredentials()
+    private void updateIngestToken(String ingestToken) throws IOException {
+        SystemCredentialsProvider provider = SystemCredentialsProvider.getInstance();
+
+        // TODO: There might be a smarter way of updating.
+        // Now I am just removing the old and adding the new.
+
+        provider.getCredentials().removeIf(credentials -> {
+            if (credentials instanceof StandardUsernamePasswordCredentials) {
+                StandardUsernamePasswordCredentials cc = (StandardUsernamePasswordCredentials)credentials;
+                return HUMIO_CREDENTIAL_KEY.equals(cc.getId());
+            }
+            return false;
+        });
+
+        provider.getCredentials()
                 .add(new UsernamePasswordCredentialsImpl(
                         CredentialsScope.GLOBAL,
                         HUMIO_CREDENTIAL_KEY,
-                        "Humio Auth Token",
-                        "HumioPlugin", authToken
+                        "Humio Ingest Token",
+                        "HumioPlugin", ingestToken
                 ));
 
-        SystemCredentialsProvider.getInstance().save();
+        provider.save();
     }
 }

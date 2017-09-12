@@ -17,8 +17,8 @@ f.section(title: descriptor.displayName) {
         f.textbox()
     }
 
-    f.entry(field: "authToken", title: _("Auth Token"),
-            help: _("The Auth Token found in your Humio Account Page")) {
+    f.entry(field: "ingestToken", title: _("Ingest Token"),
+            help: _("The Ingest Token found in your Dataspace's Settings Page")) {
 
         f.password()
     }

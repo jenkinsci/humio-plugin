@@ -26,8 +26,6 @@ public class HumioLogShipper {
     private static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private static final BlockingQueue<Event> queue = new ArrayBlockingQueue<>(10000);
 
-    private static final String apiToken = "SomeToken"
-
     static {{
       executorService.scheduleAtFixedRate(HumioLogShipper::ship, 0, 500, TimeUnit.MILLISECONDS);
     }}
@@ -69,7 +67,7 @@ public class HumioLogShipper {
             }
 
             PostMethod post = new PostMethod(ingestURL(config.getDataspaceId()));
-            post.setRequestHeader("Authorization", "Bearer " + config.getAuthToken());
+            post.setRequestHeader("Authorization", "Bearer " + config.getIngestToken());
             post.setRequestEntity(new StringRequestEntity(requestData.toString(),  "application/json", "utf-8"));
             int statusCode = httpClient.executeMethod(post);
 
