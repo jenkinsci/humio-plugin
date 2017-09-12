@@ -5,8 +5,9 @@ This plugin will automatically ship all build logs to Humio.
 ## Usage
 
 Go to `Manage Jenkins` -> `Global Configuration` and find the Humio section.
-You will need to put in the `dataspaceId` and the auth token for your user.
-The auth token kan be found in Humio under your account information.
+You will need to put in the `dataspaceId` and an ingest token you have created
+in Humio for `dataspaceId`.
+You can create an ingest token under the settings page of your dataspace.
 
 ## Installation
 
