@@ -11,14 +11,14 @@ f.section(title: descriptor.displayName) {
         f.textbox()
     }
 
-    f.entry(field: "dataspaceId", title: _("Dataspace ID"),
-            help: _("The id (name) of the dataspace to store the logs in.")) {
+    f.entry(field: "repositoryName", title: _("Repository Name"),
+            help: _("The name of the repository to store the logs in.")) {
 
         f.textbox()
     }
 
     f.entry(field: "ingestToken", title: _("Ingest Token"),
-            help: _("The Ingest Token found in your Dataspace's Settings Page")) {
+            help: _("The Ingest Token found in your Repository's Settings Page")) {
 
         f.password()
     }

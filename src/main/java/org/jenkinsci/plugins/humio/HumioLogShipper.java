@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 // TODO: find an appropriate extension point for this so we can do init and destroy.
@@ -30,9 +31,9 @@ public class HumioLogShipper {
       executorService.scheduleAtFixedRate(HumioLogShipper::ship, 0, 500, TimeUnit.MILLISECONDS);
     }}
 
-    public static void send(String line, int buildNumber, String jobName) {
+    public static void send(String line, int buildNumber, String jobName, Map<String,String> extraFields) {
         // It is important to do the timestamp BEFORE we queue the event.
-        queue.add(new Event(line, java.time.Instant.now(), buildNumber, jobName));
+        queue.add(new Event(line, java.time.Instant.now(), buildNumber, jobName, extraFields));
     }
 
     private static void ship() {
@@ -66,7 +67,7 @@ public class HumioLogShipper {
                 return;
             }
 
-            PostMethod post = new PostMethod(ingestURL(config.getDataspaceId()));
+            PostMethod post = new PostMethod(ingestURL(config.getRepositoryName()));
             post.setRequestHeader("Authorization", "Bearer " + config.getIngestToken());
             post.setRequestEntity(new StringRequestEntity(requestData.toString(),  "application/json", "utf-8"));
             int statusCode = httpClient.executeMethod(post);
@@ -80,11 +81,11 @@ public class HumioLogShipper {
     }
 
 
-    private static String ingestURL(String dataspaceId) throws URISyntaxException {
+    private static String ingestURL(String repositoryId) throws URISyntaxException {
         HumioConfig config = HumioConfig.getInstance();
 
         // Remove any double '/' and so on, since the user may have included them in the serverURL.
-        URI uri = new URI(config.getServerURL() + "/api/v1/dataspaces/" + dataspaceId + "/ingest");
+        URI uri = new URI(config.getServerURL() + "/api/v1/repositories/" + repositoryId + "/ingest");
         uri = uri.normalize();
 
         return uri.toString();
@@ -98,21 +99,24 @@ public class HumioLogShipper {
         JSONObject attributes = new JSONObject();
         attributes.put("buildNumber", event.buildNumber);
         attributes.put("jobName", event.jobName);
+        event.extraFields.forEach(attributes::put);
         json.put("attributes", attributes);
 
         return json;
     }
 
     private static class Event {
-        Event(String data, Instant timestamp, int buildNumber, String jobName) {
+        Event(String data, Instant timestamp, int buildNumber, String jobName, Map<String, String> extraFields) {
             this.timestamp = timestamp;
             this.data = data;
             this.buildNumber = buildNumber;
             this.jobName = jobName;
+            this.extraFields = extraFields;
         }
         Instant timestamp;
         String data;
         int buildNumber;
         String jobName;
+        Map<String,String> extraFields;
     }
 }

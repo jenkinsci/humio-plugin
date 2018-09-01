@@ -3,18 +3,21 @@ package org.jenkinsci.plugins.humio;
 import hudson.console.LineTransformationOutputStream;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class HumioOutputStream extends LineTransformationOutputStream {
     private final String jobName;
     private final int buildNumber;
+    private final Map<String, String> extraFields;
 
     private boolean isBlankLine(String line) {
         return line.trim().isEmpty();
     }
 
-    HumioOutputStream(String jobName, int buildNumber) {
+    HumioOutputStream(String jobName, int buildNumber, Map<String, String> extraFields) {
         this.jobName = jobName;
         this.buildNumber = buildNumber;
+        this.extraFields = extraFields;
     }
 
     @Override
@@ -25,7 +28,7 @@ public class HumioOutputStream extends LineTransformationOutputStream {
             // HACK: For some reason, the build result is duplicated in the last line of output.
             // Only in code, in the Jenkins console it looks right. So we just fix it. *Yuck*
             String trimmedLine = correctBuildStatus(trimEOL(line));
-            HumioLogShipper.send(trimmedLine, buildNumber, jobName);
+            HumioLogShipper.send(trimmedLine, buildNumber, jobName, extraFields);
         }
     }
 

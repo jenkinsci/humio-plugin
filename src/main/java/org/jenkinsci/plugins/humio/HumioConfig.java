@@ -23,7 +23,7 @@ public class HumioConfig extends GlobalConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(HumioConfig.class);
 
     private String serverURL = "https://cloud.humio.com/";
-    private String dataspaceId = "";
+    private String repositoryName = "";
     private Boolean enabled = true;
 
     public HumioConfig() {
@@ -49,8 +49,8 @@ public class HumioConfig extends GlobalConfiguration {
                 || i.serverURL == null
                 || "".equals(i.getIngestToken())
                 || i.getIngestToken() == null
-                || "".equals(i.dataspaceId)
-                || i.dataspaceId == null);
+                || "".equals(i.repositoryName)
+                || i.repositoryName == null);
     }
 
     @Override
@@ -102,13 +102,13 @@ public class HumioConfig extends GlobalConfiguration {
     }
 
     @SuppressWarnings("unused")
-    public String getDataspaceId() {
-        return dataspaceId;
+    public String getRepositoryName() {
+        return repositoryName;
     }
 
     @SuppressWarnings("unused")
-    public void setDataspaceId(String dataspaceId) {
-        this.dataspaceId = dataspaceId;
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
     }
 
     @SuppressWarnings("unused")
