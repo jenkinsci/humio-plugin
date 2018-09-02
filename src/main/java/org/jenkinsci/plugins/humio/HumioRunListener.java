@@ -20,12 +20,13 @@ public class HumioRunListener extends RunListener<Run> {
 
     @Override
     public void onCompleted(Run run, @Nonnull TaskListener listener) {
-        if (HumioConfig.getInstance().getEnabled() && run.getResult() != null) {
+        Result result = run.getResult();
+        if (HumioConfig.getInstance().getEnabled() && result != null) {
             Map<String, String> attributes = new TreeMap<>();
             attributes.put("duration", Long.toString(run.getDuration()));
             attributes.put("start", java.time.Instant.ofEpochMilli(run.getStartTimeInMillis()).toString());
             attributes.put("end", java.time.Instant.ofEpochMilli(run.getStartTimeInMillis() + run.getDuration()).toString());
-            attributes.put("result", run.getResult().toString());
+            attributes.put("result", result.toString());
 
             HumioLogShipper.send("Generated Build Statistics", run.getNumber(), run.getParent().getName(), attributes);
         }

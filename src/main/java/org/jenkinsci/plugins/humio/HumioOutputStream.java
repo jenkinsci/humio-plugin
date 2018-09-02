@@ -22,7 +22,7 @@ public class HumioOutputStream extends LineTransformationOutputStream {
 
     @Override
     protected void eol(byte[] b, int len) throws IOException {
-        String line = new String(b, 0, len);
+        String line = new String(b, 0, len, "UTF-8");
 
         if (!isBlankLine(line)) {
             // HACK: For some reason, the build result is duplicated in the last line of output.
