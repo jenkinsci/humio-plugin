@@ -14,16 +14,12 @@ import java.util.TreeMap;
 @SuppressWarnings("unused")
 public class HumioConsoleLogListener extends ConsoleLogFilter {
     @Override
-    public OutputStream decorateLogger(Run build, OutputStream logger) throws IOException, InterruptedException {
+    public OutputStream decorateLogger(Run build, OutputStream logger) {
         if (HumioConfig.getInstance().getEnabled()) {
-            // Get info from the build environment and create fields for them.
-            // Currently only Git.
+
             Map<String, String> extraFields = new TreeMap<>();
 
-            String gitBranch = build.getEnvironment().get("GIT_BRANCH");
-            if (gitBranch != null && !"".equals(gitBranch)) {
-                extraFields.put("gitBranch", gitBranch);
-            }
+            Util.addRunMetaData(build, extraFields);
 
             return new TeeOutputStream(logger, new HumioOutputStream(build.getParent().getName(), build.getNumber(), extraFields));
         } else {

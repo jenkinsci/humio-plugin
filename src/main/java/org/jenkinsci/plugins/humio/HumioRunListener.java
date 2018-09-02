@@ -19,16 +19,18 @@ import java.util.TreeMap;
 public class HumioRunListener extends RunListener<Run> {
 
     @Override
-    public void onCompleted(Run run, @Nonnull TaskListener listener) {
-        Result result = run.getResult();
+    public void onCompleted(Run build, @Nonnull TaskListener listener) {
+        Result result = build.getResult();
         if (HumioConfig.getInstance().getEnabled() && result != null) {
-            Map<String, String> attributes = new TreeMap<>();
-            attributes.put("duration", Long.toString(run.getDuration()));
-            attributes.put("start", java.time.Instant.ofEpochMilli(run.getStartTimeInMillis()).toString());
-            attributes.put("end", java.time.Instant.ofEpochMilli(run.getStartTimeInMillis() + run.getDuration()).toString());
-            attributes.put("result", result.toString());
+            Map<String, String> extraFields = new TreeMap<>();
+            extraFields.put("duration", Long.toString(build.getDuration()));
+            extraFields.put("start", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis()).toString());
+            extraFields.put("end", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis() + build.getDuration()).toString());
+            extraFields.put("result", result.toString());
 
-            HumioLogShipper.send("Generated Build Statistics", run.getNumber(), run.getParent().getName(), attributes);
+            Util.addRunMetaData(build, extraFields);
+
+            HumioLogShipper.send("Generated Build Statistics", build.getNumber(), build.getParent().getName(), extraFields);
         }
     }
 }
