@@ -38,6 +38,8 @@ public class HumioOutputStream extends LineTransformationOutputStream {
                 return "Finished: SUCCESS";
             case "Finished: FAILUREFinished: FAILURE":
                 return "Finished: FAILURE";
+            case "Finished: ABORTEDFinished: ABORTED":
+                return "Finished: ABORTED";
             default:
                 return line;
         }

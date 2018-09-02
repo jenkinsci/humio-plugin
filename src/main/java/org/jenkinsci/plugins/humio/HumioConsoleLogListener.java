@@ -2,18 +2,17 @@ package org.jenkinsci.plugins.humio;
 
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.*;
-import hudson.util.LogTaskListener;
+import hudson.model.Run;
 import org.apache.commons.io.output.TeeOutputStream;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
 
 @Extension
 @SuppressWarnings("unused")
-public class HumioJobListener extends ConsoleLogFilter {
+public class HumioConsoleLogListener extends ConsoleLogFilter {
     @Override
     public OutputStream decorateLogger(Run build, OutputStream logger) throws IOException, InterruptedException {
         if (HumioConfig.getInstance().getEnabled()) {
