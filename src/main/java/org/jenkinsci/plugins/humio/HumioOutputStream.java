@@ -28,7 +28,7 @@ public class HumioOutputStream extends LineTransformationOutputStream {
             // HACK: For some reason, the build result is duplicated in the last line of output.
             // Only in code, in the Jenkins console it looks right. So we just fix it. *Yuck*
             String trimmedLine = correctBuildStatus(trimEOL(line));
-            HumioLogShipper.send(trimmedLine, buildNumber, jobName, extraFields);
+            HumioLogShipper.send(trimmedLine, buildNumber, jobName, "log", extraFields);
         }
     }
 

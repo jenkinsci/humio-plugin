@@ -19,18 +19,35 @@ import java.util.TreeMap;
 public class HumioRunListener extends RunListener<Run> {
 
     @Override
+    public void onStarted(Run build, TaskListener listener) {
+        if (HumioConfig.getInstance().getEnabled()) {
+            Map<String, String> extraFields = new TreeMap<>();
+            extraFields.put("build.duration", Long.toString(build.getDuration()));
+            extraFields.put("build.start", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis()).toString());
+
+            Util.addRunMetaData(build, extraFields);
+
+            String logLine = String.format("%s (#%d) - STARTED", build.getParent().getName(), build.getNumber());
+
+            HumioLogShipper.send(logLine, build.getNumber(), build.getParent().getName(), "start", extraFields);
+        }
+    }
+
+    @Override
     public void onCompleted(Run build, @Nonnull TaskListener listener) {
         Result result = build.getResult();
         if (HumioConfig.getInstance().getEnabled() && result != null) {
             Map<String, String> extraFields = new TreeMap<>();
-            extraFields.put("duration", Long.toString(build.getDuration()));
-            extraFields.put("start", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis()).toString());
-            extraFields.put("end", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis() + build.getDuration()).toString());
-            extraFields.put("result", result.toString());
+            extraFields.put("build.duration", Long.toString(build.getDuration()));
+            extraFields.put("build.start", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis()).toString());
+            extraFields.put("build.end", java.time.Instant.ofEpochMilli(build.getStartTimeInMillis() + build.getDuration()).toString());
+            extraFields.put("build.result", result.toString());
 
             Util.addRunMetaData(build, extraFields);
 
-            HumioLogShipper.send("Generated Build Statistics", build.getNumber(), build.getParent().getName(), extraFields);
+            String logLine = String.format("%s (#%d) - %s", build.getParent().getName(), build.getNumber(), result);
+
+            HumioLogShipper.send(logLine, build.getNumber(), build.getParent().getName(), "end", extraFields);
         }
     }
 }

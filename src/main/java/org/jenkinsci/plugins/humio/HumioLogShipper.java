@@ -31,9 +31,9 @@ public class HumioLogShipper {
       executorService.scheduleAtFixedRate(HumioLogShipper::ship, 0, 500, TimeUnit.MILLISECONDS);
     }}
 
-    public static void send(String line, int buildNumber, String jobName, Map<String,String> extraFields) {
+    public static void send(String line, int buildNumber, String jobName, String eventType, Map<String,String> extraFields) {
         // It is important to do the timestamp BEFORE we queue the event.
-        queue.add(new Event(line, java.time.Instant.now(), buildNumber, jobName, extraFields));
+        queue.add(new Event(line, java.time.Instant.now(), buildNumber, jobName, eventType, extraFields));
     }
 
     private static void ship() {
@@ -97,8 +97,9 @@ public class HumioLogShipper {
         json.put("rawstring", event.data);
 
         JSONObject attributes = new JSONObject();
-        attributes.put("buildNumber", event.buildNumber);
-        attributes.put("jobName", event.jobName);
+        attributes.put("event.type", event.eventType);
+        attributes.put("build.number", event.buildNumber);
+        attributes.put("job.name", event.jobName);
         event.extraFields.forEach(attributes::put);
         json.put("attributes", attributes);
 
@@ -106,17 +107,19 @@ public class HumioLogShipper {
     }
 
     private static class Event {
-        Event(String data, Instant timestamp, int buildNumber, String jobName, Map<String, String> extraFields) {
+        Event(String data, Instant timestamp, int buildNumber, String jobName, String eventType, Map<String, String> extraFields) {
             this.timestamp = timestamp;
             this.data = data;
             this.buildNumber = buildNumber;
             this.jobName = jobName;
+            this.eventType = eventType;
             this.extraFields = extraFields;
         }
         Instant timestamp;
         String data;
         int buildNumber;
         String jobName;
+        String eventType;
         Map<String,String> extraFields;
     }
 }
